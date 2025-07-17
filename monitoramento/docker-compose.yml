@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  mysql-server:
+    image: mysql:8.3
+    container_name: mysql-server
+    environment:
+      MYSQL_DATABASE: "zabbix"
+      MYSQL_USER: "zabbix"
+      MYSQL_PASSWORD: "zabbix"
+      MYSQL_ROOT_PASSWORD: "zabbix"
+    command: --character-set-server=utf8 --collation-server=utf8_bin
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: unless-stopped
+    network_mode: host
+
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:alpine-7.0.5
+    container_name: zabbix-server
+    environment:
+      DB_SERVER_HOST: "127.0.0.1"
+      MYSQL_DATABASE: "zabbix"
+      MYSQL_USER: "zabbix"
+      MYSQL_PASSWORD: "zabbix"
+      MYSQL_ROOT_PASSWORD: "zabbix"
+    depends_on:
+      - mysql-server
+    restart: unless-stopped
+    network_mode: host
+
+  zabbix-web:
+    image: zabbix/zabbix-web-apache-mysql:alpine-7.0.5
+    container_name: zabbix-web
+    environment:
+      ZBX_SERVER_HOST: "127.0.0.1"
+      DB_SERVER_HOST: "127.0.0.1"
+      MYSQL_DATABASE: "zabbix"
+      MYSQL_USER: "zabbix"
+      MYSQL_PASSWORD: "zabbix"
+      MYSQL_ROOT_PASSWORD: "zabbix"
+      PHP_TZ: "America/Sao_Paulo"
+    depends_on:
+      - zabbix-server
+    restart: unless-stopped
+    network_mode: host
+
+  zabbix-agent2:
+    image: zabbix/zabbix-agent2:alpine-7.0.5
+    container_name: zabbix-agent2
+    environment:
+      ZBX_HOSTNAME: "Zabbix server"
+      ZBX_SERVER_HOST: "127.0.0.1"
+    depends_on:
+      - zabbix-server
+    restart: always
+    network_mode: host
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_INSTALL_PLUGINS=alexanderzobnin-zabbix-app
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    restart: unless-stopped
+    network_mode: host
+
+volumes:
+  mysql-data:
+  prometheus-data:
+  grafana-data:
+
