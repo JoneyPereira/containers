@@ -35,6 +35,7 @@ services:  # Definição dos containers
       ZBX_HISTORYINDEXCACHESIZE: "${ZBX_HISTORYINDEXCACHESIZE}"
       ZBX_CACHESIZE: "${ZBX_CACHESIZE}"
       ZBX_TRENDCACHESIZE: "${ZBX_TRENDCACHESIZE}"
+      TZ: "${TZ}"
     depends_on:
       - mysql-server  # Garante que o MySQL suba primeiro
     restart: unless-stopped
@@ -51,6 +52,7 @@ services:  # Definição dos containers
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       PHP_TZ: "${PHP_TZ}"                     # Timezone do PHP (ex: America/Sao_Paulo)
+      TZ: "${TZ}"
     depends_on:
       - zabbix-server
     restart: unless-stopped
