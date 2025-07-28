@@ -22,6 +22,7 @@ services:  # Definição dos containers
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       ZBX_STARTPOLLERS: "${ZBX_STARTPOLLERS}"     # Nº de pollers
       ZBX_STARTPINGERS: "${ZBX_STARTPINGERS}"     # Nº de pingers (ICMP)
       ZBX_STARTUNREACHABLE: "${ZBX_STARTUNREACHABLE}"
@@ -48,6 +49,7 @@ services:  # Definição dos containers
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       PHP_TZ: "${PHP_TZ}"                     # Timezone do PHP (ex: America/Sao_Paulo)
     depends_on:
       - zabbix-server
