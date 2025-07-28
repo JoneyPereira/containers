@@ -1,31 +1,41 @@
-version: '3.8'
+services:  # Definição dos containers
 
-services:
   mysql-server:
-    image: mysql:${MYSQL_VERSION}
+    image: mysql:${MYSQL_VERSION}  # Versão do MySQL definida no .env
     container_name: mysql-server
     environment:
-      MYSQL_DATABASE: "zabbix"
-      MYSQL_USER: "zabbix"
-      MYSQL_PASSWORD: "zabbix"
-      MYSQL_ROOT_PASSWORD: "zabbix"
-    command: --character-set-server=utf8 --collation-server=utf8_bin
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"        # Nome do banco de dados
+      MYSQL_USER: "${MYSQL_USER}"                # Usuário do banco
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"        # Senha do usuário
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"  # Senha do root do MySQL
+    command: --character-set-server=utf8 --collation-server=utf8_bin  # Charset e collation
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql  # Volume persistente do MySQL
     restart: unless-stopped
-    network_mode: host
+    network_mode: host  # Usa rede do host diretamente (sem NAT)
 
   zabbix-server:
     image: zabbix/zabbix-server-mysql:${ZABBIX_VERSION}
     container_name: zabbix-server
     environment:
-      DB_SERVER_HOST: "127.0.0.1"
-      MYSQL_DATABASE: "zabbix"
-      MYSQL_USER: "zabbix"
-      MYSQL_PASSWORD: "zabbix"
-      MYSQL_ROOT_PASSWORD: "zabbix"
+      DB_SERVER_HOST: "${DB_SERVER_HOST}"         # Host do banco (normalmente 127.0.0.1 ou localhost)
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      ZBX_STARTPOLLERS: "${ZBX_STARTPOLLERS}"     # Nº de pollers
+      ZBX_STARTPINGERS: "${ZBX_STARTPINGERS}"     # Nº de pingers (ICMP)
+      ZBX_STARTUNREACHABLE: "${ZBX_STARTUNREACHABLE}"
+      ZBX_STARTSNMPPOLLERS: "${ZBX_STARTSNMPPOLLERS}"
+      ZBX_STARTTRAPPERS: "${ZBX_STARTTRAPPERS}"
+      ZBX_STARTDBSYNCERS: "${ZBX_STARTDBSYNCERS}"
+      ZBX_TIMEOUT: "${ZBX_TIMEOUT}"
+      ZBX_VALUECACHESIZE: "${ZBX_VALUECACHESIZE}"
+      ZBX_HISTORYCACHESIZE: "${ZBX_HISTORYCACHESIZE}"
+      ZBX_HISTORYINDEXCACHESIZE: "${ZBX_HISTORYINDEXCACHESIZE}"
+      ZBX_CACHESIZE: "${ZBX_CACHESIZE}"
+      ZBX_TRENDCACHESIZE: "${ZBX_TRENDCACHESIZE}"
     depends_on:
-      - mysql-server
+      - mysql-server  # Garante que o MySQL suba primeiro
     restart: unless-stopped
     network_mode: host
 
@@ -33,13 +43,12 @@ services:
     image: zabbix/zabbix-web-apache-mysql:${ZABBIX_VERSION}
     container_name: zabbix-web
     environment:
-      ZBX_SERVER_HOST: "127.0.0.1"
-      DB_SERVER_HOST: "127.0.0.1"
-      MYSQL_DATABASE: "zabbix"
-      MYSQL_USER: "zabbix"
-      MYSQL_PASSWORD: "zabbix"
-      MYSQL_ROOT_PASSWORD: "zabbix"
-      PHP_TZ: "America/Sao_Paulo"
+      ZBX_SERVER_HOST: "${ZBX_SERVER_HOST}"   # Host do servidor Zabbix
+      DB_SERVER_HOST: "${DB_SERVER_HOST}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      PHP_TZ: "${PHP_TZ}"                     # Timezone do PHP (ex: America/Sao_Paulo)
     depends_on:
       - zabbix-server
     restart: unless-stopped
@@ -49,8 +58,8 @@ services:
     image: zabbix/zabbix-agent2:${ZABBIX_VERSION}
     container_name: zabbix-agent2
     environment:
-      ZBX_HOSTNAME: "Zabbix server"
-      ZBX_SERVER_HOST: "127.0.0.1"
+      ZBX_HOSTNAME: "Zabbix server"           # Hostname que aparecerá no Zabbix
+      ZBX_SERVER_HOST: "${ZBX_SERVER_HOST}"   # Endereço do servidor Zabbix
     depends_on:
       - zabbix-server
     restart: always
@@ -60,14 +69,14 @@ services:
     image: grafana/grafana:${GRAFANA_VERSION}
     container_name: grafana
     environment:
-      - GF_INSTALL_PLUGINS=alexanderzobnin-zabbix-app
+      - GF_INSTALL_PLUGINS=alexanderzobnin-zabbix-app  # Plugin do Zabbix
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/provisioning:/etc/grafana/provisioning  # Config automática dos dashboards/datasources
     restart: unless-stopped
     network_mode: host
 
+# Volumes persistentes
 volumes:
   mysql-data:
-  prometheus-data:
   grafana-data:
