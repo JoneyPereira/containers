@@ -61,3 +61,16 @@ echo "✅ Docker e Docker Compose instalados com sucesso!"
 echo "ℹ️ Caso deseje executar Docker sem 'sudo', adicione seu usuário ao grupo 'docker':"
 echo "   sudo usermod -aG docker \$USER && newgrp docker"
 
+# Caminho do arquivo de composição
+COMPOSE_FILE="monitoramento/docker-compose.yml"
+
+# Verifica se o arquivo existe antes de rodar
+if [ -f "$COMPOSE_FILE" ]; then
+    echo "📂 Encontrado: $COMPOSE_FILE"
+    echo "🚀 Iniciando os containers com Docker Compose..."
+    docker compose -f "$COMPOSE_FILE" up -d
+    echo "✅ Containers iniciados com sucesso!"
+else
+    echo "⚠️ Arquivo $COMPOSE_FILE não encontrado. Nenhum container foi iniciado."
+    echo "💡 Verifique o caminho e certifique-se de que o arquivo existe."
+fi
